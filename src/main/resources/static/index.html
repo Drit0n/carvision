@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Carvision - Car Type Classification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #f8f9fa, #c2d9ee); /* Light gradient */
+            color: #333;
+        }
+
+        h1 {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px; /* Wider layout */
+        }
+
+        .card {
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            color: #333;
+        }
+
+        .btn-primary {
+            background-color: #000000;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 16px;
+        }
+
+        .btn-primary:hover {
+            background-color: #93ec87;
+        }
+
+        #preview {
+            height: 400px; /* Fixed height for larger preview */
+            width: auto; /* Maintain aspect ratio */
+            display: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+        }
+
+        .list-group-item {
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            margin-bottom: 8px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            max-width: 100%; /* Ensure the container does not restrict the image size */
+        }
+
+        .history-item img {
+            height: 200px; /* Fixed height for larger history images */
+            width: auto; /* Maintain aspect ratio */
+            border-radius: 12px; /* Rounded corners */
+            margin-right: 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Add shadow */
+        }
+
+        .history-item img:hover {
+            transform: scale(1.1); /* Slightly enlarge the image on hover */
+            transition: transform 0.3s ease;
+        }
+
+        .history-item .result-text {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .badge-label {
+            font-size: 1rem;
+            margin: 0.25rem;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            background-color: #3b81cd;
+            color: #fff;
+        }
+
+        .section-title {
+            font-size: 1.75rem; /* Larger font size */
+            font-weight: 700;
+            margin-top: 1rem;
+            color: #333;
+        }
+
+        .card-section {
+            margin-top: 2rem;
+        }
+
+        .emoji-label {
+            font-size: 1.9rem; /* Larger emoji size */
+            margin-right: 0.5rem;
+        }
+
+        .model-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #f8f9fa, #bcd1e4);
+            margin-bottom: 8px;
+        }
+
+        .model-item strong {
+            font-size: 1.1rem; /* Larger font size for model names */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h1 class="display-4 text-primary fw-bold">🚗 Vehicle Classification</h1>
+            <p class="lead">Upload an image to classify the car type and get detailed information.</p>
+        </div>
+
+        <!-- Upload Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form id="uploadForm">
+                    <div class="mb-3">
+                        <label for="image" class="form-label">📷 Upload Image</label>
+                        <input class="form-control" type="file" id="image" name="image" accept="image/*" required>
+                    </div>
+                    <div class="mb-3 text-center">
+                        <img id="preview" class="img-fluid rounded" alt="Preview">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">🔍 Classify</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Result Card -->
+        <div id="resultCard" class="card shadow-sm d-none">
+            <div class="card-body">
+                <h5 class="card-title">🚘 Classification Result</h5>
+                <div id="resultText" class="list-group"></div>
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <div id="historySection" class="mt-5">
+            <h5 class="section-title">📜 Classification History</h5>
+            <div id="historyList" class="mt-3"></div>
+        </div>
+
+        <!-- Labels and Models Section -->
+        <div class="row card-section">
+            <!-- Available Labels -->
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="section-title">🏷️ Available Labels</div>
+                        <div id="labels-list" class="d-flex flex-wrap">
+                            <span class="badge-label"><span class="emoji-label">🚛</span>Big Truck</span>
+                            <span class="badge-label"><span class="emoji-label">🚗</span>City Car</span>
+                            <span class="badge-label"><span class="emoji-label">🚐</span>Multi Purpose Vehicle</span>
+                            <span class="badge-label"><span class="emoji-label">🚘</span>Sedan</span>
+                            <span class="badge-label"><span class="emoji-label">🚙</span>SUV</span>
+                            <span class="badge-label"><span class="emoji-label">🚚</span>Truck</span>
+                            <span class="badge-label"><span class="emoji-label">🚐</span>Van</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Models -->
+            <div class="col-md-6 mt-3 mt-md-0">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="section-title">🧠 Available Models</div>
+                        <div id="models-list">
+                            <div class="model-item">
+                                <strong>⚙️ vehicleclassifier-0010</strong>
+                                <span>Accuracy: 92%, Epochs: 10</span>
+                            </div>
+                            <div class="model-item">
+                                <strong>⚙️ vehicleclassifier-005</strong>
+                                <span>Accuracy: 89%, Epochs: 5</span>
+                            </div>
+                            <div class="model-item">
+                                <strong>⚙️ vehicleclassifier-0003</strong>
+                                <span>Accuracy: 75%, Epochs: 3</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const imageInput = document.getElementById('image');
+        const preview = document.getElementById('preview');
+        const resultCard = document.getElementById('resultCard');
+        const resultText = document.getElementById('resultText');
+        const historyList = document.getElementById('historyList');
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const file = imageInput.files[0];
+            if (!file) {
+                alert('Please upload an image.');
+                return;
+            }
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = () => {
+                preview.src = reader.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
+            // Create FormData and send to backend
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch('/api/detect', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to classify the image.');
+                }
+
+                const data = await response.json();
+                resultText.innerHTML = ''; // Clear previous results
+
+                if (Array.isArray(data) && data.length > 0) {
+                    // Display all probabilities
+                    data.forEach((item) => {
+                        const resultItem = document.createElement('div');
+                        resultItem.className = 'list-group-item';
+                        resultItem.innerHTML = `
+                            <strong>Car Type:</strong> ${item.className}<br>
+                            <strong>Probability:</strong> ${(item.probability * 100).toFixed(2)}%
+                        `;
+                        resultText.appendChild(resultItem);
+                    });
+
+                    // Add the top 3 results to history
+                    addToHistory(preview.src, data);
+                } else {
+                    resultText.textContent = 'No classification result found.';
+                }
+
+                resultCard.classList.remove('d-none');
+            } catch (error) {
+                console.error(error);
+                resultText.textContent = 'Error classifying the image. Please try again.';
+                resultCard.classList.remove('d-none');
+            }
+        });
+
+        function addToHistory(imageSrc, results) {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <img src="${imageSrc}" alt="Uploaded Image">
+                <div class="result-text">
+                    <strong>Top Results:</strong>
+                    <ul class="list-unstyled">
+                        ${results
+                            .slice(0, 3) // Take the top 3 results
+                            .map(
+                                (result) =>
+                                    `<li class="d-flex align-items-center">
+                                        <span class="emoji-label me-2">${getEmojiForCarType(result.className)}</span>
+                                        <span>${result.className}: <strong>${(result.probability * 100).toFixed(2)}%</strong></span>
+                                    </li>`
+                            )
+                            .join('')}
+                    </ul>
+                </div>
+            `;
+            historyList.prepend(historyItem); // Add to the top of the history list
+        }
+
+        // Helper function to return emojis for car types
+        function getEmojiForCarType(carType) {
+            const emojiMap = {
+                "SUV": "🚙",
+                "Sedan": "🚘",
+                "Truck": "🚚",
+                "City Car": "🚗",
+                "Van": "🚐",
+                "Big Truck": "🚛",
+                "Multi Purpose Vehicle": "🚐",
+            };
+            return emojiMap[carType] || "🚗"; // Default emoji
+        }
+    </script>
+</body>
+
+</html>

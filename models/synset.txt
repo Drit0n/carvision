@@ -1,0 +1,7 @@
+Big Truck
+City Car
+Multi Purpose Vehicle
+Sedan
+SUV
+Truck
+Van
