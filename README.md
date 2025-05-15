@@ -90,6 +90,8 @@ Sehen Sie sich den Abschnitt "🧠 Verfügbare Modelle" für Details zu den masc
 🚐 Van
 
 Ordnerstruktur
+
+```markdown
 carvision/
 ├── .mvn/                     # Maven Wrapper Dateien
 ├── models/                   # Vorgefertigte Modell-Dateien
@@ -105,8 +107,9 @@ carvision/
 │   │   │   │   ├── script.js
 │   ├── test/                 # Testdateien
 ├── Dockerfile                # Docker-Konfiguration
-├── [pom.xml](http://_vscodecontentref_/3)                   # Maven-Konfiguration
+├── pom.xml                   # Maven-Konfiguration
 ├── mvnw                      # Maven Wrapper Skript
+```
 
 
 ### Beitrag leisten
