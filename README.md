@@ -35,7 +35,7 @@ Carvision ist eine moderne Anwendung, die mithilfe von maschinellem Lernen Fahrz
 ### **1. Repository klonen**
 Klonen Sie das Repository auf Ihren lokalen Rechner:
 ```bash
-git clone https://github.com/your-username/carvision.git
+git clone https://github.com/drit0n/carvision.git
 cd carvision
 ```
 
